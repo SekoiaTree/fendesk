@@ -5,6 +5,7 @@ windows_subsystem = "windows"
 
 use std::sync::Mutex;
 use std::time::Instant;
+use tauri::Wry;
 
 struct TimeoutInterrupt {
     start: Instant,
@@ -53,6 +54,11 @@ fn fend_prompt_internal(value: String, timeout: i64, context: &mut fend_core::Co
         })
 }
 
+#[tauri::command]
+fn quit(window: tauri::Window<Wry>) {
+    window.close().expect("Failed to close successfully. Yeah, I don't know either.")
+}
+
 fn main() {
     let mut context = fend_core::Context::new();
     let current_time = chrono::Local::now();
@@ -62,7 +68,7 @@ fn main() {
 
     tauri::Builder::default()
         .manage(FendContext(Mutex::new(context)))
-        .invoke_handler(tauri::generate_handler![fend_prompt, fend_preview_prompt])
+        .invoke_handler(tauri::generate_handler![fend_prompt, fend_preview_prompt, quit])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

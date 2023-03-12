@@ -22,6 +22,16 @@ const setHintInnerText = x => {
     inputHint.innerText = x;
 };
 
+async function commands(event) {
+    if (!event.ctrlKey) {
+        return;
+    }
+
+    if (event.key === "d") {
+        invoke("quit");
+    }
+}
+
 async function evaluate(event) {
     // allow multiple lines to be entered if shift, ctrl
     // or meta is held, otherwise evaluate the expression
@@ -168,6 +178,7 @@ async function load() {
     const keydown = x => {
         navigate(x);
         evaluate(x);
+        commands(x);
     }
     inputText.addEventListener('input', update);
     inputText.addEventListener('keydown', keydown);
