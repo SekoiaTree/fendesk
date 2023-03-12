@@ -14,6 +14,10 @@ async function evaluateFendWithTimeout(input, timeout) {
     return invoke("fend_prompt", {"value": input, "timeout": timeout});
 }
 
+async function evaluateFendPreviewWithTimeout(input, timeout) {
+    return invoke("fend_preview_prompt", {"value": input, "timeout": timeout});
+}
+
 const setHintInnerText = x => {
     inputHint.innerText = x;
 };
@@ -143,7 +147,7 @@ function updateReplicatedText() {
 }
 
 function updateHint() {
-    evaluateFendWithTimeout(inputText.value, 100).then(x => {
+    evaluateFendPreviewWithTimeout(inputText.value, 100).then(x => {
         inputHint.className = "valid-hint";
         setHintInnerText(x);
     }, x => {
