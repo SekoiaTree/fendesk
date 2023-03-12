@@ -6,3 +6,4 @@ A desktop version of [fend](https://printfn.github.io/fend/), built using [tauri
 - [ ] Add time functions/exchange rates
 - [ ] Add options like config-defined functions
 - [ ] Syntax highlighting; units should be a different color from text, math symbols too, etc.
+- [ ] hints shouldn't save to variables
