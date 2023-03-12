@@ -55,7 +55,7 @@ async function evaluate(event) {
         output.appendChild(request);
         output.appendChild(result);
 
-        inputHint.scrollIntoView();
+        result.scrollIntoView();
     });
 }
 

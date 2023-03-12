@@ -5,3 +5,4 @@ A desktop version of [fend](https://printfn.github.io/fend/), built using [tauri
 - [ ] Add extra commands like CTRL-D, CTRL-S (what should that do?)
 - [ ] Add time functions/exchange rates
 - [ ] Add options like config-defined functions
+- [ ] Syntax highlighting; units should be a different color from text, math symbols too, etc.

@@ -45,9 +45,11 @@ main {
     bottom: 0;
     left: 0;
     right: 0;
-    display: grid;
-    grid-template-columns: auto auto;
-    grid-template-rows: 1fr auto;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+
     max-width: 60ch;
     padding: 0 3ch;
     margin: auto;
@@ -58,9 +60,19 @@ main > * {
 }
 
 #output {
+    display: flex;
+    flex-direction: column;
+    /* justify-content: flex-end; <-- I'd use this, but there's a bug. See below comment. */
     overflow: scroll;
-    grid-row: 1;
 }
+
+/* this is to fix an (apparent?) bug with justify-content: flex-end with scrollbars. */
+#output::before{
+    content: '';
+    display: block;
+    margin-top: auto;
+}
+
 #output p {
     white-space: pre-wrap;
 }
@@ -73,7 +85,7 @@ p, textarea {
     display: grid;
     grid-template-columns: 2ch 1fr;
     grid-template-rows: auto auto;
-    min-height: 80px;
+    min-height: 4.5em; /* just enough for two liens of text. Not super clean but should be robust enough with different font sizes? */
 }
 #input p {
     grid-column: 1/3;
@@ -103,11 +115,6 @@ p, textarea {
 #input #text:after {
     grid-area: 1 / 1 / 2 / 2;
     white-space: pre-wrap;
-}
-
-#footer-container {
-    grid-row: 2;
-    background: hsl(30, 25%, 10%);
 }
 
 #separator {
