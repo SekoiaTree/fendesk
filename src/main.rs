@@ -38,7 +38,6 @@ fn fend_prompt(value: String, timeout: i64, state: tauri::State<FendContext>) ->
 #[tauri::command]
 fn fend_preview_prompt(value: String, timeout: i64, state: tauri::State<FendContext>) -> Result<String, String> {
     let mut context = (*state).0.lock().unwrap().clone();
-    context.disable_rng();
     fend_prompt_internal(value, timeout, &mut context)
 }
 
@@ -55,8 +54,14 @@ fn fend_prompt_internal(value: String, timeout: i64, context: &mut fend_core::Co
 }
 
 fn main() {
+    let mut context = fend_core::Context::new();
+    let current_time = chrono::Local::now();
+    context.set_current_time_v1(current_time.timestamp_millis() as u64, current_time.offset().local_minus_utc() as i64);
+
+    context.set_random_u32_fn(rand::random);
+
     tauri::Builder::default()
-        .manage(FendContext(Mutex::new(fend_core::Context::new())))
+        .manage(FendContext(Mutex::new(context)))
         .invoke_handler(tauri::generate_handler![fend_prompt, fend_preview_prompt])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
