@@ -6,7 +6,6 @@ let output = document.getElementById("output");
 let inputText = document.getElementById("input-text");
 let inputHint = document.getElementById("input-hint");
 let input = document.getElementById("input");
-let footer = document.getElementById("footer");
 let history = [];
 let navigation = 0;
 
@@ -169,17 +168,6 @@ async function load() {
     inputText.addEventListener('input', update);
     inputText.addEventListener('keydown', keydown);
     document.addEventListener('click', focus)
-
-    const mutationObserver = new MutationObserver(() => {
-        // It'd probably be faster to take into account the actual changes that happened
-        // But that's really complex, since there's a lot of possibilities
-        // In this case, the subtree is tiny, so this is... fine enough.
-        // MutationObservers are cool though!
-        footer.replaceChildren(input.cloneNode(true));
-    });
-
-    mutationObserver.observe(document.getElementById("input"), { childList: true, subtree: true });
-    footer.replaceChildren(input.cloneNode(true)); // Initialize the clone.
 }
 
 window.onload = load;
