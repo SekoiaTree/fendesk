@@ -28,7 +28,7 @@
         "icons/256x256.png",
         "icons/icon.ico"
       ],
-      "identifier": "com.tauri.dev",
+      "identifier": "com.sekoia.fendesk",
       "longDescription": "",
       "macOS": {
         "entitlements": null,
