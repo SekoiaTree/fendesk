@@ -2,8 +2,8 @@ name: 'publish'
 
 on:
   push:
-    branches:
-      - release
+    tags:
+      - "v*.*.*"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
