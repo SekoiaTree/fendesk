@@ -64,3 +64,4 @@ jobs:
         with:
           draft: false
           files: ./artifacts/**/*
+        if: startsWith(github.ref, 'refs/tags/')
