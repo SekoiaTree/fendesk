@@ -1,0 +1,76 @@
+* {
+    background: transparent;
+    color: inherit;
+    border: none;
+    font-weight: inherit;
+    font-size: inherit;
+    font-style: inherit;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: hsl(30, 15%, 90%);
+    font: 16px/150% monospace;
+    color: hsl(30, 25%, 10%);
+    margin: 0;
+}
+
+a {
+    color: hsl(90, 70%, 30%);
+}
+
+b {
+    color: hsl(30, 25%, 40%);
+}
+
+.valid-hint {
+    color: hsl(30, 25%, 10%);
+}
+
+@media (prefers-color-scheme: dark) {
+    a {
+        color: hsl(90, 70%, 70%);
+    }
+
+    b {
+        color: hsl(30, 25%, 70%);
+    }
+
+    body {
+        background: hsl(30, 25%, 10%);
+        color: hsl(30, 15%, 90%);
+    }
+
+    .valid-hint {
+        color: hsl(30, 15%, 90%);
+    }
+}
+
+/* width */
+::-webkit-scrollbar {
+    width: 5px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-corner {
+    background: transparent;
+}
+::-webkit-scrollbar-track-piece {
+    background: transparent;
+}
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: #777;
+    border-radius: 4px;
+    border: 1px solid transparent;
+    background-clip: padding-box;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: #606060;
+    border: 0;
+}

@@ -27,8 +27,16 @@ async function commands(event) {
         return;
     }
 
-    if (event.key === "d") {
+    if (event.key === "w") {
         invoke("quit");
+    } else if (event.key === "c" && document.getSelection().isCollapsed) {
+        invoke("copy_to_clipboard", {"value": inputText.value})
+        // TODO; optionally make this copy other values, such as the hint or the previous output
+        // Also add a toast (https://www.w3schools.com/howto/howto_js_snackbar.asp)
+    } else if (event.key === "s") {
+        invoke("save_to_file")
+    } else if (event.key === "o") {
+        // TODO
     }
 }
 

@@ -5,7 +5,8 @@ windows_subsystem = "windows"
 
 use std::sync::Mutex;
 use std::time::Instant;
-use tauri::Wry;
+use dialog::{DialogBox, FileSelectionMode};
+use tauri::{Menu, Wry};
 
 struct TimeoutInterrupt {
     start: Instant,
@@ -28,6 +29,26 @@ impl fend_core::Interrupt for TimeoutInterrupt {
 }
 
 struct FendContext(Mutex<fend_core::Context>);
+
+#[tauri::command]
+fn copy_to_clipboard(_value: String) {
+    todo!()
+}
+
+#[tauri::command]
+fn save_to_file(_state: tauri::State<FendContext>) -> Result<(), String> {
+    let dialog = dialog::FileSelection::new("Select file to save to")
+        .mode(FileSelectionMode::Save)
+        .title("Saving variables")
+        .show().map_err(|x| x.to_string())?;
+
+    // TODO: error reporting; toasts for error, cancelled, and success
+    if let Some(_x) = dialog {
+        todo!() // we need to fork fend to get access to variables and such.
+    }
+
+    Ok(())
+}
 
 #[tauri::command]
 fn fend_prompt(value: String, timeout: i64, state: tauri::State<FendContext>) -> Result<String, String> {
@@ -60,15 +81,29 @@ fn quit(window: tauri::Window<Wry>) {
 }
 
 fn main() {
+    let context = create_context();
+
+    tauri::Builder::default()
+        .manage(FendContext(Mutex::new(context)))
+        .invoke_handler(tauri::generate_handler![
+            fend_prompt, fend_preview_prompt, // core fend
+            quit, copy_to_clipboard, save_to_file // ctrl- shortcuts
+        ])
+        .menu(Menu::os_default("fendesk"))
+        .run(tauri::generate_context!())
+        .expect("error while running tauri application");
+}
+
+fn create_context() -> fend_core::Context {
+    // TODO: read from config
     let mut context = fend_core::Context::new();
     let current_time = chrono::Local::now();
     context.set_current_time_v1(current_time.timestamp_millis() as u64, current_time.offset().local_minus_utc() as i64);
 
     context.set_random_u32_fn(rand::random);
 
-    tauri::Builder::default()
-        .manage(FendContext(Mutex::new(context)))
-        .invoke_handler(tauri::generate_handler![fend_prompt, fend_preview_prompt, quit])
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+    // TODO: this is currently disabled because with large ranges it completely covers the screen, but otherwise I like it more than the default. Fix that in the fork.
+    //context.set_output_mode_terminal();
+
+    return context;
 }
