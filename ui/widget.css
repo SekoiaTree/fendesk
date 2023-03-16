@@ -24,6 +24,10 @@ b {
     color: hsl(30, 25%, 40%);
 }
 
+.valid-hint {
+    color: hsl(30, 25%, 10%);
+}
+
 @media (prefers-color-scheme: dark) {
     a {
         color: hsl(90, 70%, 70%);
@@ -35,6 +39,10 @@ b {
 
     body {
         background: hsl(30, 25%, 10%);
+        color: hsl(30, 15%, 90%);
+    }
+
+    .valid-hint {
         color: hsl(30, 15%, 90%);
     }
 }
@@ -151,10 +159,6 @@ p, textarea {
     background: hsl(30, 25%, 70%);
     border-radius: 5px;
     margin-bottom: 1ch;
-}
-
-.valid-hint {
-    color: white;
 }
 
 .error-hint {
