@@ -1,11 +1,11 @@
 [package]
-name = "app"
+name = "fendesk"
 version = "0.1.0"
-description = "A Tauri App"
-authors = ["you"]
-license = ""
-repository = ""
-default-run = "app"
+description = "An infinite-precision unit-aware calculator program based on fend and Tauri"
+authors = ["Sekoia"]
+license = "MIT"
+repository = "https://github.com/SekoiaTree/fendesk"
+default-run = "fendesk"
 edition = "2021"
 rust-version = "1.59"
 
@@ -23,6 +23,7 @@ serde = { version = "1.0", features = ["derive"] }
 tauri = { version = "1.2.4", features = [] }
 dialog = "0.3.0"
 #dirs = "4.0.0"
+#arboard = "3.2.0"
 
 [features]
 # by default Tauri runs in production mode
