@@ -6,10 +6,16 @@ let output = document.getElementById("output");
 let inputText = document.getElementById("input-text");
 let inputHint = document.getElementById("input-hint");
 let input = document.getElementById("input");
+let settingsIcon = document.getElementById("settings-icon");
 let history = [];
 let navigation = 0;
 
 const invoke = window.__TAURI__.invoke;
+
+window.__TAURI__.event.listen('settings-closed', () => {
+    settingsIcon.style.opacity = "";
+});
+
 async function evaluateFendWithTimeout(input, timeout) {
     return invoke("fend_prompt", {"value": input, "timeout": timeout});
 }
@@ -21,6 +27,11 @@ async function evaluateFendPreviewWithTimeout(input, timeout) {
 const setHintInnerText = x => {
     inputHint.innerText = x;
 };
+
+function open_settings() {
+    settingsIcon.style.opacity = "1.0";
+    invoke("open_settings");
+}
 
 async function commands(event) {
     if (!event.ctrlKey) {

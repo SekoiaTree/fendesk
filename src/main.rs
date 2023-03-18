@@ -5,8 +5,9 @@ windows_subsystem = "windows"
 
 use std::sync::Mutex;
 use std::time::Instant;
+use arboard::Clipboard;
 use dialog::{DialogBox, FileSelectionMode};
-use tauri::{Menu, Wry};
+use tauri::{Manager, Menu, WindowEvent, Wry};
 
 struct TimeoutInterrupt {
     start: Instant,
@@ -29,10 +30,12 @@ impl fend_core::Interrupt for TimeoutInterrupt {
 }
 
 struct FendContext(Mutex<fend_core::Context>);
+struct SettingsState(bool);
 
 #[tauri::command]
-fn copy_to_clipboard(_value: String) {
-    todo!()
+fn copy_to_clipboard(value: String) {
+    let mut clipboard = Clipboard::new().unwrap();
+    clipboard.set_text(value).unwrap();
 }
 
 #[tauri::command]
@@ -80,14 +83,42 @@ fn quit(window: tauri::Window<Wry>) {
     window.close().expect("Failed to close successfully. Yeah, I don't know either.")
 }
 
+#[tauri::command]
+async fn open_settings(handle: tauri::AppHandle<Wry>) {
+    let settings_window = tauri::WindowBuilder::new(
+        &handle,
+        "external", /* the unique window label */
+        tauri::WindowUrl::App("settings.html".parse().unwrap())
+    ).build().unwrap();
+
+    settings_window.on_window_event(move |x| {
+        if matches!(x, WindowEvent::CloseRequested { .. }) {
+            handle.emit_all("settings-closed", ()).unwrap();
+        }
+    })
+}
+
 fn main() {
     let context = create_context();
 
     tauri::Builder::default()
+        .setup(|app| {
+            let main = app.get_window("main").unwrap();
+            let handle = app.handle();
+            main.on_window_event(move |x| {
+                if matches!(x, WindowEvent::CloseRequested { .. }) {
+                    handle.exit(0);
+                }
+            });
+
+            Ok(())
+        })
         .manage(FendContext(Mutex::new(context)))
+        .manage(SettingsState(false))
         .invoke_handler(tauri::generate_handler![
             fend_prompt, fend_preview_prompt, // core fend
-            quit, copy_to_clipboard, save_to_file // ctrl- shortcuts
+            quit, copy_to_clipboard, save_to_file, // ctrl- shortcuts
+            open_settings // settings
         ])
         .menu(Menu::os_default("fendesk"))
         .run(tauri::generate_context!())

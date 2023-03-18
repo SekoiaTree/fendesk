@@ -12,7 +12,7 @@ main {
     justify-content: flex-end;
 
     max-width: 60ch;
-    padding: 0 3ch;
+    padding: 0 4ch;
     margin: auto;
 }
 
@@ -81,9 +81,13 @@ p, textarea {
 #separator {
     height: 3px;
     width: 100%;
-    background: hsl(30, 25%, 70%);
+    background: var(--highlight);
     border-radius: 5px;
     margin-bottom: 1ch;
+}
+
+.valid-hint {
+    color: var(--text);
 }
 
 .error-hint {
@@ -94,4 +98,23 @@ p, textarea {
     position: absolute;
     top: 0;
     right: 0;
+    left: 0;
+
+    display: grid;
+    grid-template-columns: auto 1fr 40px;
+    padding: 1ch;
+}
+
+#settings-icon {
+    grid-column: 3;
+    height: 40px;
+    width: 40px;
+
+    color: var(--highlight);
+    opacity: 0.25;
+    transition: 0.3s;
+}
+
+#settings-icon:hover {
+    opacity: 1;
 }
