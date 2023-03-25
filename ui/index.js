@@ -16,6 +16,8 @@ window.__TAURI__.event.listen('settings-closed', () => {
     settingsIcon.style.opacity = "";
 });
 
+invoke("setup_exchanges");
+
 async function evaluateFendWithTimeout(input, timeout) {
     return invoke("fend_prompt", {"value": input, "timeout": timeout});
 }
