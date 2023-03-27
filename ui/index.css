@@ -1,5 +1,3 @@
-
-
 main {
     position: absolute;
     top: 0;
@@ -48,6 +46,7 @@ p, textarea {
     grid-template-rows: auto auto;
     min-height: 4.5em; /* just enough for two liens of text. Not super clean but should be robust enough with different font sizes? */
 }
+
 #input p {
     grid-column: 1/3;
     grid-row: 2;
@@ -56,6 +55,8 @@ p, textarea {
     content: ">";
 }
 #input #text {
+    position: relative;
+
     display: grid;
     grid-column: 2;
     grid-row: 1;
@@ -94,6 +95,21 @@ p, textarea {
     color: hsl(0, 75%, 40%);
 }
 
+#input-text {
+    background: transparent;
+    color: transparent;
+    caret-color: var(--text);
+    z-index: 0;
+}
+
+#highlighting {
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    z-index: 1;
+}
+
 #header {
     position: absolute;
     top: 0;
@@ -117,4 +133,12 @@ p, textarea {
 
 #settings-icon:hover {
     opacity: 1;
+}
+
+.input-base {
+
+}
+
+.input-hint {
+    opacity: 0.25;
 }

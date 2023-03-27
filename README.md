@@ -1,16 +1,18 @@
 # Fendesk
 A desktop version of [fend](https://printfn.github.io/fend/), built using [tauri](https://tauri.app).
+Originally almost identical to the web version, but now has several added features (see below).
 
 ### TODO
 Ordered by probable priority
 - [ ] Add extra commands like Ctrl-S, Ctrl-O
 - [ ] Add options like config-defined functions
-- [ ] Add autocompletion
-- [ ] Syntax highlighting(?)
+- [ ] Better autocomplete with variables
+- [ ] Syntax highlighting
 
 # Features
 - Exchange rates
 - Slight syntax highlighting!
+- Input hints and autocompletion! (slightly minimal currently due to library constraints)
 - Shortcuts!
   - Ctrl-W quits the program (will be configurable; can also be Ctrl-D or both)
   - Ctrl-C copies the current input (if nothing is selected)

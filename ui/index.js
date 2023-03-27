@@ -5,6 +5,7 @@ const NAVIGATE_DOWN_KEY = 40;
 let output = document.getElementById("output");
 let inputText = document.getElementById("input-text");
 let inputHint = document.getElementById("input-hint");
+let inputHighlighting = document.getElementById("highlighting");
 let input = document.getElementById("input");
 let settingsIcon = document.getElementById("settings-icon");
 let history = [];
@@ -65,7 +66,6 @@ async function evaluate(event) {
     if (inputText.value === "clear") {
         output.innerHTML = "";
         setInputText("");
-        inputHint.innerText = "";
         return;
     }
 
@@ -86,7 +86,6 @@ async function evaluate(event) {
 
     evaluateFendWithTimeout(inputText.value, 500).then(setResultInnerText, setResultInnerText).finally(() => {
         setInputText("");
-        setHintInnerText("");
         output.appendChild(request);
         output.appendChild(result);
 
@@ -167,14 +166,35 @@ function focus() {
     }
 }
 
-async function update() {
-    updateReplicatedText();
+function update() {
     navigateEnd();
     updateHint();
+    updateReplicatedText();
 }
 
-function updateReplicatedText() {
+async function autocomplete(event) {
+    if (event.key !== "Tab" || event.shiftKey || event.ctrlKey || event.metaKey) {
+        return;
+    }
+
+    let hint = await invoke("fend_completion", {"value": inputText.value});
+    if (hint != null) {
+        setInputText(inputText.value + hint);
+        focus(); // A bit of a hack to avoid unfocusing after autocompleting but whatever.
+    }
+}
+
+async function updateReplicatedText() {
     inputText.parentNode.dataset.replicatedValue = inputText.value;
+    let hint = await invoke("fend_completion", {"value": inputText.value});
+    if (hint == null) {
+        hint = '';
+    } else {
+        hint = '<span class="input-hint">' + hint + '</span>';
+    }
+    inputHighlighting.innerHTML =
+          '<span class="input-base">' + inputText.value + '</span>'
+        + hint;
 }
 
 function updateHint() {
@@ -193,17 +213,20 @@ function isInputFilled() {
 
 function setInputText(x) {
     inputText.value = x;
+    updateHint();
+    updateReplicatedText();
 }
 
 async function load() {
     const keydown = x => {
+        autocomplete(x);
         navigate(x);
         evaluate(x);
         commands(x);
     }
     inputText.addEventListener('input', update);
     inputText.addEventListener('keydown', keydown);
-    document.addEventListener('click', focus)
+    document.addEventListener('click', focus);
 }
 
 window.onload = load;

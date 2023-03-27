@@ -63,6 +63,13 @@ fn save_to_file(_state: tauri::State<FendContext>) -> Result<(), String> {
 }
 
 #[tauri::command]
+fn fend_completion(value: String) -> Option<String> {
+    let (_, completions) = fend_core::get_completions_for_prefix(value.as_str());
+
+    Some(completions.first()?.insert().to_string())
+}
+
+#[tauri::command]
 fn fend_prompt(value: String, timeout: i64, state: tauri::State<FendContext>) -> Result<String, String> {
     let mut context = (*state).0.lock().unwrap();
     fend_prompt_internal(value, timeout, &mut (*context))
@@ -125,7 +132,7 @@ fn main() {
         .manage(FendContext(Mutex::new(context)))
         .manage(SettingsState(false))
         .invoke_handler(tauri::generate_handler![
-            setup_exchanges, fend_prompt, fend_preview_prompt, // core fend
+            setup_exchanges, fend_prompt, fend_preview_prompt, fend_completion, // core fend
             quit, copy_to_clipboard, save_to_file, // ctrl- shortcuts
             open_settings // settings
         ])
