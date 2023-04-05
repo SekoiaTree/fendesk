@@ -1,4 +1,39 @@
 body {
     display: grid;
     grid-template-columns: auto auto;
+    align-items: center;
+}
+
+label {
+    grid-column: 1;
+}
+
+input {
+    grid-column: 2;
+}
+
+input[type="checkbox"] {
+    appearance: none;
+    position: relative;
+    width: 1em;
+    height: 1em;
+    border: 1px solid var(--highlight);
+    border-radius: 5px;
+    /* Adjusts the position of the checkboxes on the text baseline */
+    vertical-align: -2px;
+    background: linear-gradient(45deg, var(--bg) 50%, var(--highlight) 50%) left bottom;
+    background-size: 400% 100%;
+    transition: 0.25s;
+}
+
+input[type="checkbox"]:checked {
+    background-position: right bottom;
+}
+
+input[type="checkbox"]::before {
+    content: "✔";
+    position: absolute;
+    font-size: 1.2em;
+    color: var(--bg);
+    top: -0.2em;
 }

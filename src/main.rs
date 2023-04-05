@@ -11,7 +11,8 @@ use std::sync::Mutex;
 use std::time::Instant;
 use dialog::{DialogBox, FileSelectionMode};
 use serde::{Deserialize, Serialize};
-use tauri::{AppHandle, ClipboardManager, Manager, Menu, Window, WindowEvent, Wry};
+use serde_json::json;
+use tauri::{AppHandle, ClipboardManager, Manager, Window, WindowEvent, Wry};
 
 struct TimeoutInterrupt {
     start: Instant,
@@ -35,7 +36,7 @@ impl fend_core::Interrupt for TimeoutInterrupt {
 
 struct FendContext(Mutex<fend_core::Context>);
 
-struct SettingsState(bool);
+struct SettingsState(Mutex<serde_json::Value>);
 
 #[tauri::command]
 fn copy_to_clipboard(value: String, app_handle: AppHandle<Wry>) {
@@ -105,13 +106,23 @@ async fn open_settings(handle: AppHandle<Wry>) {
         &handle,
         "external", /* the unique window label */
         tauri::WindowUrl::App("settings.html".parse().unwrap()),
-    ).build().unwrap();
+    ).title("fendesk settings").build().unwrap();
 
     settings_window.on_window_event(move |x| {
         if matches!(x, WindowEvent::CloseRequested { .. }) {
             handle.emit_all("settings-closed", ()).unwrap();
         }
     })
+}
+
+#[tauri::command]
+fn set_setting(id: String, value: serde_json::Value, settings: tauri::State<SettingsState>) {
+    settings.0.lock().expect("The settings were corrupted. Should never happen, please report.")[id] = value;
+}
+
+#[tauri::command]
+fn get_settings(settings: tauri::State<SettingsState>) -> serde_json::Value {
+    settings.0.lock().expect("The settings were corrupted. Should never happen, please report.").clone()
 }
 
 fn main() {
@@ -130,13 +141,12 @@ fn main() {
             Ok(())
         })
         .manage(FendContext(Mutex::new(context)))
-        .manage(SettingsState(false))
+        .manage(SettingsState(Mutex::new(json!({}))))
         .invoke_handler(tauri::generate_handler![
             setup_exchanges, fend_prompt, fend_preview_prompt, fend_completion, // core fend
             quit, copy_to_clipboard, save_to_file, // ctrl- shortcuts
-            open_settings // settings
+            open_settings, set_setting, get_settings // settings
         ])
-        .menu(Menu::os_default("fendesk"))
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

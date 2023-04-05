@@ -13,8 +13,17 @@ let navigation = 0;
 
 const invoke = window.__TAURI__.invoke;
 
+async function get_settings() {
+    settings = await invoke("get_settings");
+}
+
+let settings;
+
+get_settings();
+
 window.__TAURI__.event.listen('settings-closed', () => {
     settingsIcon.style.opacity = "";
+    get_settings();
 });
 
 invoke("setup_exchanges");
@@ -41,7 +50,7 @@ async function commands(event) {
         return;
     }
 
-    if (event.key === "w") {
+    if ((event.key === "w" && settings["ctrl_w_closes"]) || (event.key === "d" && settings["ctrl_d_closes"])) {
         invoke("quit");
     } else if (event.key === "c" && document.getSelection().isCollapsed) {
         invoke("copy_to_clipboard", {"value": inputText.value})
