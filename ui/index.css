@@ -108,6 +108,8 @@ p, textarea {
     left: 0;
 
     z-index: 1;
+
+    white-space: pre-wrap;
 }
 
 #header {
