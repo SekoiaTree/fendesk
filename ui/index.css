@@ -44,7 +44,7 @@ p, textarea {
     display: grid;
     grid-template-columns: 2ch 1fr;
     grid-template-rows: auto auto;
-    min-height: 4.5em; /* just enough for two liens of text. Not super clean but should be robust enough with different font sizes? */
+    min-height: 4.5em; /* just enough for two lines of text. Not super clean but should be robust enough with different font sizes? */
 }
 
 #input p {

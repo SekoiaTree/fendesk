@@ -8,6 +8,7 @@ let inputHint = document.getElementById("input-hint");
 let inputHighlighting = document.getElementById("highlighting");
 let input = document.getElementById("input");
 let settingsIcon = document.getElementById("settings-icon");
+let toast = document.getElementById("toast");
 let history = [];
 let navigation = 0;
 
@@ -19,11 +20,19 @@ async function get_settings() {
 
 let settings;
 
-get_settings();
+get_settings().then(async () => {
+    if (typeof settings["global_inputs"] === typeof "") {
+        let split = settings["global_inputs"].split("\n");
+        for (let i = 0; i < split.length; i++) {
+            await evaluateFendWithTimeout(split[i], 500);
+        }
+    }
+});
 
 window.__TAURI__.event.listen('settings-closed', () => {
     settingsIcon.style.opacity = "";
     get_settings();
+    invoke("save_settings").catch(x => set_toast("Error saving settings: " + x, "error"));
 });
 
 invoke("setup_exchanges");
@@ -45,6 +54,16 @@ function open_settings() {
     invoke("open_settings");
 }
 
+function set_toast(text, type) {
+    toast.innerText = text;
+
+    // Add the "show" class to DIV
+    toast.className = "show " + type;
+
+    // After 3 seconds, remove the show class from DIV
+    setTimeout(function(){ toast.className = ""; }, 3000);
+}
+
 async function commands(event) {
     if (!event.ctrlKey) {
         return;
@@ -53,13 +72,52 @@ async function commands(event) {
     if ((event.key === "w" && settings["ctrl_w_closes"]) || (event.key === "d" && settings["ctrl_d_closes"])) {
         invoke("quit");
     } else if (event.key === "c" && document.getSelection().isCollapsed) {
-        invoke("copy_to_clipboard", {"value": inputText.value})
-        // TODO; optionally make this copy other values, such as the hint or the previous output
-        // Also add a toast (https://www.w3schools.com/howto/howto_js_snackbar.asp)
+        let clipboard_text;
+        if (settings["ctrl_c_behavior"] === "prev_result") {
+            clipboard_text = output.lastChild.innerText;
+            if (clipboard_text === undefined) {
+                return;
+            }
+        } else if (settings["ctrl_c_behavior"] === "hint") {
+            clipboard_text = inputHint.innerText;
+        } else {
+            clipboard_text = inputText.value;
+        }
+        invoke("copy_to_clipboard", {"value": clipboard_text});
+        set_toast("Copied to clipboard!", "note");
     } else if (event.key === "s") {
-        invoke("save_to_file")
+        let history_segment;
+        if (settings["save_back_count"] < 0) {
+            history_segment = history;
+        } else {
+            history_segment = history.slice(-settings["save_back_count"]);
+        }
+        invoke("save_to_file", {"input": history_segment}).then(x => {
+            if (x) {
+                set_toast("Successfully saved file!", "ok");
+            } else {
+                set_toast("Cancelled!", "note")
+            }
+        }).catch(x => set_toast("Error saving file: " + x, "error"));
     } else if (event.key === "o") {
-        // TODO
+        let inputs = await invoke("load_from_file").then(x => {
+            console.log(x);
+            if (x[1]) {
+                set_toast("Cancelled!", "note");
+            }
+            return x[0];
+        }).catch(x => {
+            set_toast("Error loading file: " + x, "error");
+            return [];
+        });
+
+        if (inputs.length === 0) {
+            return;
+        }
+        for (let i = 0; i < inputs.length; i++) {
+            await evaluateFendWithTimeout(inputs[i], 500);
+        }
+        set_toast("Finished loading file!", "ok");
     }
 }
 
@@ -206,7 +264,7 @@ async function updateReplicatedText() {
         + hint;
 }
 
-function updateHint() {
+async function updateHint() {
     evaluateFendPreviewWithTimeout(inputText.value, 100).then(x => {
         inputHint.className = "valid-hint";
         setHintInnerText(x);

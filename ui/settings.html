@@ -16,6 +16,19 @@
     <label for="ctrl_w_closes">Ctrl-W closes program</label>
     <input id="ctrl_w_closes" type="checkbox">
 
+    <label for="save_back_count">Number of calculations to save (-1 for all)</label>
+    <input id="save_back_count" type="number">
+
+    <label for="ctrl_c_behavior">How Ctrl-C should behave</label>
+    <select id="ctrl_c_behavior">
+        <option value="input">Input</option>
+        <option value="hint">Hint</option>
+        <option value="prev_result">Previous result</option>
+    </select>
+
+    <label for="global_inputs">Inputs to run on boot (requires restart)</label>
+    <textarea id="global_inputs"></textarea>
+
     <script src="settings.js"></script>
 </body>
 </html>

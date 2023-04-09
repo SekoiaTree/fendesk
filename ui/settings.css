@@ -2,14 +2,47 @@ body {
     display: grid;
     grid-template-columns: auto auto;
     align-items: center;
+    padding: 10px 1em;
 }
 
 label {
     grid-column: 1;
 }
 
-input {
+input, textarea, select {
     grid-column: 2;
+}
+
+textarea {
+    line-height: inherit;
+    font-family: inherit;
+    outline: none;
+    overflow: scroll;
+    resize: none;
+
+    border: 1px solid var(--highlight);
+    border-radius: 5px;
+}
+
+select {
+    appearance: none;
+
+    border: 1px solid var(--highlight);
+    border-radius: 5px;
+
+    background-color: var(--bg);
+    padding: 1px 0.75ch;
+}
+
+select:after {
+    content: 'v';
+}
+
+input[type="number"] {
+    appearance: none;
+    border: 1px solid var(--highlight);
+    border-radius: 5px;
+    padding: 1px 0.75ch;
 }
 
 input[type="checkbox"] {

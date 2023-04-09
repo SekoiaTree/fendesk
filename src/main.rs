@@ -4,10 +4,11 @@ windows_subsystem = "windows"
 )]
 
 use std::collections::HashMap;
+use std::fs;
 use std::fs::File;
-use std::io::BufReader;
+use std::io::{BufRead, BufReader, Write};
 use std::path::PathBuf;
-use std::sync::Mutex;
+use std::sync::{Mutex, MutexGuard};
 use std::time::Instant;
 use dialog::{DialogBox, FileSelectionMode};
 use serde::{Deserialize, Serialize};
@@ -49,18 +50,38 @@ fn copy_to_clipboard(value: String, app_handle: AppHandle<Wry>) {
 }
 
 #[tauri::command]
-fn save_to_file(_state: tauri::State<FendContext>) -> Result<(), String> {
-    let dialog = dialog::FileSelection::new("Select file to save to")
-        .mode(FileSelectionMode::Save)
-        .title("Saving variables")
+fn load_from_file() -> Result<(Vec<String>, bool), String> {
+    let dialog = dialog::FileSelection::new("Select file to open")
+        .mode(FileSelectionMode::Open)
+        .title("Open a list of things to run")
         .show().map_err(|x| x.to_string())?;
 
-    // TODO: error reporting; toasts for error, cancelled, and success
-    if let Some(_x) = dialog {
-        todo!() // we need to fork fend to get access to variables and such.
+    if let Some(x) = dialog {
+        let file = BufReader::new(File::open(x).map_err(|e| e.to_string())?);
+        return Ok((file.lines().filter_map(|x| x.ok()).collect(), false));
     }
 
-    Ok(())
+    Ok((vec![], true))
+}
+
+#[tauri::command]
+fn save_to_file(input: Vec<String>) -> Result<bool, String> {
+    let dialog = dialog::FileSelection::new("Select file to save to")
+        .mode(FileSelectionMode::Save)
+        .title("Saving input")
+        .show().map_err(|x| x.to_string())?;
+
+    if let Some(x) = dialog {
+        let mut file = File::create(x).map_err(|e| e.to_string())?;
+
+        for i in input {
+            writeln!(file, "{}", i).map_err(|e| e.to_string())?;
+        }
+
+        Ok(true)
+    } else {
+        Ok(false)
+    }
 }
 
 #[tauri::command]
@@ -115,18 +136,40 @@ async fn open_settings(handle: AppHandle<Wry>) {
     })
 }
 
+const SETTINGS_CORRUPTED: &str = "The settings were corrupted. Should never happen, please report.";
+
 #[tauri::command]
 fn set_setting(id: String, value: serde_json::Value, settings: tauri::State<SettingsState>) {
-    settings.0.lock().expect("The settings were corrupted. Should never happen, please report.")[id] = value;
+    settings.0.lock().expect(SETTINGS_CORRUPTED)[id] = value;
+}
+
+#[tauri::command]
+fn save_settings(settings: tauri::State<SettingsState>) -> Result<(), String> {
+    if let Some(x) = tauri::api::path::config_dir() {
+        let settings : MutexGuard<serde_json::Value> = settings.0.lock().expect(SETTINGS_CORRUPTED);
+        fs::create_dir_all(x.join("fendesk")).map_err(|e| e.to_string())?;
+        let mut file = File::create(x.join("fendesk/settings.json")).map_err(|e| e.to_string())?;
+        file.write(serde_json::to_string(&*settings).map_err(|e| e.to_string())?.as_bytes()).map_err(|e| e.to_string())?;
+        Ok(())
+    } else {
+        Err("Configuration folder not found!".to_string())
+    }
 }
 
 #[tauri::command]
 fn get_settings(settings: tauri::State<SettingsState>) -> serde_json::Value {
-    settings.0.lock().expect("The settings were corrupted. Should never happen, please report.").clone()
+    settings.0.lock().expect(SETTINGS_CORRUPTED).clone()
 }
 
 fn main() {
     let context = create_context();
+    let default_settings = json!({
+        "ctrl_d_closes": true,
+        "ctrl_w_closes": false,
+        "save_back_count": -1,
+        "ctrl_c_behavior": "input",
+        "global_inputs": "",
+    });
 
     tauri::Builder::default()
         .setup(|app| {
@@ -141,14 +184,24 @@ fn main() {
             Ok(())
         })
         .manage(FendContext(Mutex::new(context)))
-        .manage(SettingsState(Mutex::new(json!({}))))
+        .manage(SettingsState(Mutex::new(get_saved_settings().unwrap_or(default_settings))))
         .invoke_handler(tauri::generate_handler![
             setup_exchanges, fend_prompt, fend_preview_prompt, fend_completion, // core fend
-            quit, copy_to_clipboard, save_to_file, // ctrl- shortcuts
-            open_settings, set_setting, get_settings // settings
+            quit, copy_to_clipboard, save_to_file, load_from_file, // ctrl- shortcuts
+            open_settings, set_setting, get_settings, save_settings // settings
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+fn get_saved_settings() -> Result<serde_json::Value, ()> {
+    if let Some(x) = tauri::api::path::config_dir() {
+        fs::create_dir_all(x.join("fendesk")).map_err(|_| ())?;
+        let file = File::open(x.join("fendesk/settings.json")).map_err(|_| ())?;
+        serde_json::from_reader(file).map_err(|_| ())
+    } else {
+        Err(())
+    }
 }
 
 fn create_context() -> fend_core::Context {

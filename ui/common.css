@@ -69,3 +69,45 @@ b {
     background: #606060;
     border: 0;
 }
+
+#toast {
+    visibility: hidden;
+    min-width: 250px;
+    margin-left: -125px;
+    text-align: center;
+    border-radius: 1em;
+    padding: 8px;
+    position: fixed;
+    z-index: 1;
+    left: 50%;
+    bottom: 30px;
+
+    color: hsl(30, 25%, 10%);
+}
+
+#toast.ok {
+    background-color: hsl(90, 70%, 30%);
+}
+
+#toast.note {
+    background-color: hsl(30, 25%, 55%);
+}
+
+#toast.error {
+    background-color: hsl(0, 75%, 40%);
+}
+
+#toast.show {
+    visibility: visible;
+    animation: toast_fadein 0.5s, toast_fadeout 0.5s 2.5s;
+}
+
+@keyframes toast_fadein {
+    from {bottom: 0; opacity: 0;}
+    to {bottom: 30px; opacity: 1;}
+}
+
+@keyframes toast_fadeout {
+    from {bottom: 30px; opacity: 1;}
+    to {bottom: 0; opacity: 0;}
+}
