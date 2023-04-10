@@ -1,6 +1,6 @@
 [package]
 name = "fendesk"
-version = "0.1.0"
+version = "1.0.0"
 description = "An infinite-precision unit-aware calculator program based on fend and Tauri"
 authors = ["Sekoia"]
 license = "MIT"

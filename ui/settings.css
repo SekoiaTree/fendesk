@@ -1,6 +1,8 @@
 body {
     display: grid;
     grid-template-columns: auto auto;
+    grid-row-gap: 0.4em;
+
     align-items: center;
     padding: 10px 1em;
 }
@@ -9,7 +11,7 @@ label {
     grid-column: 1;
 }
 
-input, textarea, select {
+input, textarea, select, .select-wrapper {
     grid-column: 2;
 }
 
@@ -32,10 +34,19 @@ select {
 
     background-color: var(--bg);
     padding: 1px 0.75ch;
+
+    width: 100%;
 }
 
-select:after {
-    content: 'v';
+.select-wrapper {
+    position: relative;
+}
+
+.select-wrapper::after {
+    content: "▼";
+    font-size: 1rem;
+    right: 10px;
+    position: absolute;
 }
 
 input[type="number"] {
@@ -43,6 +54,10 @@ input[type="number"] {
     border: 1px solid var(--highlight);
     border-radius: 5px;
     padding: 1px 0.75ch;
+}
+
+input[type=number]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
 }
 
 input[type="checkbox"] {

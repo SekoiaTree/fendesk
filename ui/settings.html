@@ -20,11 +20,13 @@
     <input id="save_back_count" type="number">
 
     <label for="ctrl_c_behavior">How Ctrl-C should behave</label>
-    <select id="ctrl_c_behavior">
-        <option value="input">Input</option>
-        <option value="hint">Hint</option>
-        <option value="prev_result">Previous result</option>
-    </select>
+    <div class="select-wrapper">
+        <select id="ctrl_c_behavior">
+            <option value="input">Input</option>
+            <option value="hint">Hint</option>
+            <option value="prev_result">Previous result</option>
+        </select>
+    </div>
 
     <label for="global_inputs">Inputs to run on boot (requires restart)</label>
     <textarea id="global_inputs"></textarea>
